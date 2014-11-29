@@ -101,6 +101,7 @@ public class ApplicationContext {
             for (Class<?> aClass : classes) {
                 pico.addComponent(aClass);
             }
+            pico.addComponent(this);
             pico.addAdapter(new ContextInjector(vertx, container));
             pico.addAdapter(new VertxInjector(vertx));
             pico.addAdapter(new ContainerInjector(container));
