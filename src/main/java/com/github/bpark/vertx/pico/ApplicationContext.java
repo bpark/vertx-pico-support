@@ -17,6 +17,7 @@ package com.github.bpark.vertx.pico;
 
 import com.github.bpark.vertx.pico.injectors.*;
 import com.google.common.reflect.ClassPath;
+import org.picocontainer.ComponentAdapter;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoBuilder;
 import org.vertx.java.core.Vertx;
@@ -38,6 +39,8 @@ public class ApplicationContext {
     private Set<Class<?>> classes = new HashSet<>();
 
     private Set<String> scans = new HashSet<>();
+
+    private Set<ComponentAdapter<?>> componentAdapters = new HashSet<>();
 
     private MutablePicoContainer pico;
 
@@ -76,6 +79,11 @@ public class ApplicationContext {
         return this;
     }
 
+    public ApplicationContext withAdapter(ComponentAdapter<?> componentAdapter) {
+        componentAdapters.add(componentAdapter);
+        return this;
+    }
+
     public ApplicationContext build() {
         try {
             if (injectAnnotation != null) {
@@ -99,6 +107,9 @@ public class ApplicationContext {
             pico.addAdapter(new LoggerInjector(container.logger()));
             pico.addAdapter(new EventBusInjector(vertx.eventBus()));
             pico.addAdapter(new BusModInjector(container));
+            for (ComponentAdapter<?> componentAdapter : componentAdapters) {
+                pico.addAdapter(componentAdapter);
+            }
             return this;
         } catch (Exception e) {
             throw new RuntimeException(e);
